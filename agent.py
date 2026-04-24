@@ -1,20 +1,16 @@
 import json
 import subprocess
-from tools import TOOLS
-
-
-# 🔹 Call local LLM (Ollama)
-import subprocess
 import re
+from tools import TOOLS, lookup_section
 
-import re
 
+# 🔹 Clean LLM output
 def clean_output(text):
-    # 🔹 Remove ANSI codes
+    # Remove ANSI codes
     ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
     text = ansi_escape.sub('', text)
 
-    # 🔹 Remove repeated words (e.g., "the the", "chea cheating")
+    # Remove repeated words
     words = text.split()
     cleaned_words = []
 
@@ -24,12 +20,10 @@ def clean_output(text):
 
     text = " ".join(cleaned_words)
 
-    # 🔹 Fix broken partial words (optional improvement)
-    text = re.sub(r'\b(\w{2,})\s+\1\b', r'\1', text)
-
     return text.strip()
 
 
+# 🔹 Call local LLM
 def call_llm(prompt):
     result = subprocess.run(
         "ollama run llama3",
@@ -40,26 +34,34 @@ def call_llm(prompt):
         shell=True
     )
 
-    output = result.stdout.strip()
-    return clean_output(output)
+    return clean_output(result.stdout.strip())
+
 
 def run_agent(user_input):
     text = user_input.lower().strip()
 
-    # 🔥 Greeting handling
+    # 🔥 1. Greeting handling
     if text in ["hi", "hello", "hey"]:
         return "Hello! 👋 I am your Legal AI Assistant. Ask me about law sections, crimes, or FIR procedures."
 
     if "how are you" in text:
         return "I'm functioning well! 😊 How can I help you with legal information today?"
 
-    # 🔥 STEP 1: LLM decides which tool to use (TRUE MCP)
+    # 🔥 2. DIRECT SECTION DETECTION (VERY IMPORTANT)
+    match = re.search(r"\b\d{3}\b", text)
+    if match:
+        section_id = match.group()
+        result = lookup_section(section_id)
+
+        return f"{result}\n\nThis section defines legal provisions under Indian law."
+
+    # 🔥 3. MCP DECISION (LLM)
     decision_prompt = f"""
 You are an intelligent legal assistant.
 
 Your job:
-- Understand the user's intent from natural language
-- Identify the legal concept (crime, issue, law)
+- Understand the user's intent
+- Identify the legal concept
 - Choose the correct tool
 
 Available tools:
@@ -70,13 +72,10 @@ Available tools:
 User: {user_input}
 
 Instructions:
-- Extract meaning, not just keywords
-- Examples:
-    "case for theft" → theft → search_law
-    "illegal land issue" → trespass/property → search_law
-    "cheating case" → cheating → search_law
-    "what is section 302" → lookup_section
-    "FIR process" → fir_procedure
+- "case for theft" → search_law
+- "illegal land issue" → search_law
+- "cheating case" → search_law
+- "FIR process" → fir_procedure
 
 Respond ONLY in JSON:
 {{"tool": "tool_name", "args": {{}}}}
@@ -85,9 +84,9 @@ Respond ONLY in JSON:
     response = call_llm(decision_prompt)
     print("\n[LLM Decision]:", response)
 
-    # 🔥 STEP 2: Parse JSON safely
+    # 🔥 4. Parse tool call
     try:
-        clean = response.strip().replace("```json", "").replace("```", "")
+        clean = response.replace("```json", "").replace("```", "").strip()
         data = json.loads(clean)
 
         tool_name = data["tool"]
@@ -97,7 +96,7 @@ Respond ONLY in JSON:
             tool_result = TOOLS[tool_name](**args)
             print("[Tool Output]:", tool_result)
 
-            # 🔥 STEP 3: Final answer generation
+            # 🔥 5. Final response
             final_prompt = f"""
 You are a legal assistant.
 
@@ -105,26 +104,22 @@ User question: {user_input}
 Tool result: {tool_result}
 
 Explain clearly in simple legal language.
-Be helpful and human-like.
-Do NOT refuse.
+Do NOT repeat words.
 """
 
-            final_response = call_llm(final_prompt)
-            return final_response
+            return call_llm(final_prompt)
 
         else:
-            return "Sorry, I couldn't find the right tool for this query."
+            return "Sorry, I couldn't process that request."
 
     except Exception as e:
         print("[Parsing Error]:", e)
 
-        # 🔥 Fallback (graceful)
+        # 🔥 6. Fallback
         return f"""
 I understand your question: "{user_input}"
 
-This seems related to legal information.
-
-You can ask:
+Try asking:
 - What is section 302?
 - Law for cheating
 - Punishment for rape
