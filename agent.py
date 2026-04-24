@@ -4,14 +4,22 @@ import re
 from tools import TOOLS, lookup_section, search_law, fir_procedure
 
 
-# 🔹 Clean output (ONLY remove ANSI, keep language natural)
+# 🔹 Clean LLM output
 def clean_output(text):
     ansi_escape = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')
     text = ansi_escape.sub('', text)
-    return text.strip()
+
+    words = text.split()
+    cleaned = []
+
+    for i, word in enumerate(words):
+        if i == 0 or word.lower() != words[i-1].lower():
+            cleaned.append(word)
+
+    return " ".join(cleaned).strip()
 
 
-# 🔹 Call local LLM (Ollama)
+# 🔹 Call local LLM
 def call_llm(prompt):
     result = subprocess.run(
         "ollama run llama3",
@@ -24,27 +32,6 @@ def call_llm(prompt):
     return clean_output(result.stdout.strip())
 
 
-def explain_with_llm(user_input, tool_result):
-    prompt = f"""
-You are a professional legal assistant.
-
-User question: {user_input}
-
-Legal information:
-{tool_result}
-
-Instructions:
-- Explain clearly in natural human language
-- Use simple words
-- Write in 1–2 short paragraphs
-- Add a small example if possible
-- Avoid repetition and robotic tone
-
-Answer:
-"""
-    return call_llm(prompt)
-
-
 def run_agent(user_input):
     text = user_input.lower().strip()
 
@@ -52,36 +39,36 @@ def run_agent(user_input):
     # 🔥 1. BASIC CONVERSATION
     # =====================================
     if text in ["hi", "hello", "hey"]:
-        return "Hello! 👋 I am your Legal AI Assistant. Ask me about laws, sections, or FIR procedures."
+        return "Hello! 👋 I am your Legal AI Assistant. Ask me about laws, sections, or FIR."
 
     if "how are you" in text:
         return "I'm doing great! 😊 How can I help you with legal information?"
 
     # =====================================
-    # 🔥 2. SECTION DETECTION
+    # 🔥 2. SECTION DETECTION (HIGH PRIORITY)
     # =====================================
     match = re.search(r"\b\d{3}\b", text)
     if match:
         section_id = match.group()
         result = lookup_section(section_id)
-        return explain_with_llm(user_input, result)
+        return f"{result}\n\nThis section explains the legal provision under IPC."
 
     # =====================================
-    # 🔥 3. FIR DETECTION
+    # 🔥 3. FIR DETECTION (IMPORTANT FIX)
     # =====================================
     if any(word in text for word in ["fir", "file fir", "register fir", "complaint"]):
         result = fir_procedure()
-        return explain_with_llm(user_input, result)
+        return f"{result}\n\nThis is the process to file an FIR."
 
     # =====================================
-    # 🔥 4. DIRECT LAW SEARCH
+    # 🔥 4. DIRECT LAW SEARCH (SMART FALLBACK BEFORE LLM)
     # =====================================
     result = search_law(text)
     if "Section" in result:
-        return explain_with_llm(user_input, result)
+        return f"{result}\n\nThis law is relevant to your query."
 
     # =====================================
-    # 🔥 5. MCP (LLM TOOL DECISION)
+    # 🔥 5. MCP (LLM DECISION)
     # =====================================
     decision_prompt = f"""
 You are a legal assistant.
@@ -118,18 +105,34 @@ Respond ONLY in JSON:
             tool_result = TOOLS[tool_name](**args)
             print("[Tool Output]:", tool_result)
 
-            return explain_with_llm(user_input, tool_result)
+            final_prompt = f"""
+You are a legal assistant.
+
+User question: {user_input}
+Tool result: {tool_result}
+
+Explain clearly in simple and human-friendly language.
+Avoid repetition.
+"""
+
+            return call_llm(final_prompt)
 
         else:
-            return "Sorry, I couldn't understand your request."
+            return "Sorry, I couldn't understand the request."
 
     except Exception as e:
         print("[Parsing Error]:", e)
 
         # =====================================
-        # 🔥 FINAL FALLBACK (ALWAYS HUMAN-LIKE)
+        # 🔥 6. FINAL FALLBACK (NEVER FAIL)
         # =====================================
-        return explain_with_llm(
-            user_input,
-            "This query relates to legal information, but no exact section was found."
-        )
+        return f"""
+I understand your question: "{user_input}"
+
+Here’s what you can try:
+• Ask about a section (e.g., section 302)
+• Ask about a crime (e.g., theft, cheating)
+• Ask about FIR process
+
+I'm here to help with legal information 😊
+"""
