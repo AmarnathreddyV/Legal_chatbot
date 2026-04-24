@@ -1,6 +1,8 @@
 
 # ⚖️ Legal AI Chatbot (MCP-Based with Local LLM)
 
+Project link: https://legal-chatbot1.streamlit.app/
+
 A **context-aware Legal AI Chatbot** built using **Python, Streamlit, and a local LLM (Llama 3 via Ollama)** that follows a **Model Context Protocol (MCP)** architecture.
 
 This chatbot can understand natural language queries like:
