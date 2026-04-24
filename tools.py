@@ -22,33 +22,31 @@ def lookup_section(section_id):
 def search_law(query):
     query = query.lower()
 
-    # 🔥 PROPERTY / LAND CASES
-    if any(word in query for word in ["land", "property", "trespass", "encroachment"]):
+    # 🔥 PROPERTY / TRESPASS (FIXED PRIORITY)
+    if any(word in query for word in ["trespass", "trespassing", "land", "property", "encroachment"]):
         return (
-            "Relevant sections for land/property disputes:\n"
-            "- Section 441 IPC: Criminal trespass\n"
-            "- Section 447 IPC: Punishment for trespass"
+            "Relevant sections:\n"
+            "Section 441 IPC: Criminal trespass - Entering property unlawfully.\n"
+            "Section 447 IPC: Punishment for criminal trespass."
         )
-
-    # 🔥 THEFT
-    if any(word in query for word in ["theft", "steal", "stolen"]):
-        return LAW_DB["379"]
 
     # 🔥 MURDER
     if "murder" in query:
-        return LAW_DB["302"]
+        return "Section 302 IPC: Punishment for murder."
 
-    # 🔥 CHEATING / FRAUD
+    # 🔥 THEFT
+    if any(word in query for word in ["theft", "steal", "stolen"]):
+        return "Section 379 IPC: Punishment for theft."
+
+    # 🔥 CHEATING
     if any(word in query for word in ["cheating", "fraud", "scam"]):
-        return LAW_DB["420"]
+        return "Section 420 IPC: Cheating."
 
     # 🔥 RAPE
     if "rape" in query:
-        return LAW_DB["376"]
+        return "Section 376 IPC: Punishment for rape."
 
-    # 🔥 FALLBACK
-    return "No exact match found. Please try a more specific legal query."
-
+    return "No exact legal match found."
 
 # 🔹 FIR procedure
 def fir_procedure():
