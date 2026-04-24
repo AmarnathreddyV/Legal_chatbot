@@ -1,0 +1,16 @@
+[
+  {"section": "302", "title": "Murder", "description": "Punishment for murder under IPC."},
+  {"section": "304", "title": "Culpable homicide", "description": "Culpable homicide not amounting to murder."},
+  {"section": "307", "title": "Attempt to murder", "description": "Punishment for attempt to murder."},
+  {"section": "323", "title": "Voluntarily causing hurt", "description": "Punishment for causing hurt."},
+  {"section": "351", "title": "Assault", "description": "Definition of assault."},
+  {"section": "354", "title": "Outraging modesty", "description": "Assault on a woman to outrage modesty."},
+  {"section": "376", "title": "Rape", "description": "Punishment for rape."},
+  {"section": "378", "title": "Theft", "description": "Definition of theft."},
+  {"section": "379", "title": "Punishment for theft", "description": "Punishment for committing theft."},
+  {"section": "390", "title": "Robbery", "description": "Definition of robbery."},
+  {"section": "391", "title": "Dacoity", "description": "Definition of dacoity."},
+  {"section": "420", "title": "Cheating", "description": "Cheating and dishonestly inducing delivery of property."},
+  {"section": "441", "title": "Criminal trespass", "description": "Entering property unlawfully."},
+  {"section": "499", "title": "Defamation", "description": "Harming reputation of a person."}
+]
