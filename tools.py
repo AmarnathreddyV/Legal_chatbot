@@ -1,51 +1,68 @@
-import json
+# 🔹 Legal dataset (can later move to laws.json)
 
-with open("laws.json", "r", encoding="utf-8") as f:
-    LAWS = json.load(f)
+LAW_DB = {
+    "302": "Section 302 IPC: Punishment for murder - Death or life imprisonment.",
+    "379": "Section 379 IPC: Punishment for theft.",
+    "420": "Section 420 IPC: Cheating and dishonestly inducing delivery of property.",
+    "376": "Section 376 IPC: Punishment for rape.",
+    "441": "Section 441 IPC: Criminal trespass - Entering property unlawfully.",
+    "447": "Section 447 IPC: Punishment for criminal trespass.",
+}
 
 
+# 🔹 Lookup by section number
 def lookup_section(section_id):
-    for law in LAWS:
-        if law["section"] == str(section_id):
-            return f"Section {law['section']}: {law['title']} - {law['description']}"
-    return f"Section {section_id} not found."
+    return LAW_DB.get(
+        str(section_id),
+        "Section not found in database."
+    )
 
 
-# 🔥 SMART SEARCH (better than keyword)
+# 🔹 Smart search (IMPORTANT FIX)
 def search_law(query):
     query = query.lower()
-    scored_results = []
 
-    for law in LAWS:
-        score = 0
+    # 🔥 PROPERTY / LAND CASES
+    if any(word in query for word in ["land", "property", "trespass", "encroachment"]):
+        return (
+            "Relevant sections for land/property disputes:\n"
+            "- Section 441 IPC: Criminal trespass\n"
+            "- Section 447 IPC: Punishment for trespass"
+        )
 
-        if query in law["title"].lower():
-            score += 3
-        if query in law["description"].lower():
-            score += 2
-        if any(word in law["title"].lower() for word in query.split()):
-            score += 1
+    # 🔥 THEFT
+    if any(word in query for word in ["theft", "steal", "stolen"]):
+        return LAW_DB["379"]
 
-        if score > 0:
-            scored_results.append((score, law))
+    # 🔥 MURDER
+    if "murder" in query:
+        return LAW_DB["302"]
 
-    # sort by best match
-    scored_results.sort(reverse=True, key=lambda x: x[0])
+    # 🔥 CHEATING / FRAUD
+    if any(word in query for word in ["cheating", "fraud", "scam"]):
+        return LAW_DB["420"]
 
-    if scored_results:
-        top = scored_results[0][1]
-        return f"Best match:\nSection {top['section']}: {top['title']} - {top['description']}"
+    # 🔥 RAPE
+    if "rape" in query:
+        return LAW_DB["376"]
 
-    return "No relevant section found."
+    # 🔥 FALLBACK
+    return "No exact match found. Please try a more specific legal query."
 
 
+# 🔹 FIR procedure
 def fir_procedure():
-    return """Steps to file FIR:
-1. Go to police station
-2. Provide details
-3. Get FIR copy"""
+    return (
+        "Steps to file an FIR:\n"
+        "1. Go to the nearest police station\n"
+        "2. Provide complete details of the incident\n"
+        "3. Police will record your complaint\n"
+        "4. Verify details before signing\n"
+        "5. Collect a copy of the FIR"
+    )
 
 
+# 🔹 Tool mapping (for agent)
 TOOLS = {
     "lookup_section": lookup_section,
     "search_law": search_law,
