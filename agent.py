@@ -45,6 +45,18 @@ def run_agent(user_input):
         return "I'm doing great! 😊 How can I help you with legal information?"
 
     # =====================================
+# 🔥 SPECIAL LAW DETECTION (FIX)
+# =====================================
+    if "pocso" in text or "child abuse" in text:
+        result = (
+        "POCSO Act, 2012 (Protection of Children from Sexual Offences Act):\n"
+        "- Protects children from sexual offences\n"
+        "- Covers assault, harassment, pornography\n"
+        "- Provides strict punishment for offenders"
+    )
+    return explain_with_llm(user_input, result)
+
+    # =====================================
     # 🔥 2. SECTION DETECTION (HIGH PRIORITY)
     # =====================================
     match = re.search(r"\b\d{3}\b", text)
