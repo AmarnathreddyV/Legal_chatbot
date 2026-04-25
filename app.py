@@ -7,6 +7,10 @@ st.title("⚖️ Legal AI Chatbot")
 
 user_input = st.text_input("Ask your legal question:")
 
-if user_input:
-    response = run_agent(user_input)
-    st.write(response)
+if st.button("Submit"):
+    if user_input.strip():
+        with st.spinner("Thinking..."):
+            response = run_agent(user_input)
+        st.write(response)
+    else:
+        st.warning("Please enter a question.")
