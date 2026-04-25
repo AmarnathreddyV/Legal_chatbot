@@ -17,21 +17,48 @@ def lookup_section(section_id):
 def search_law(query):
     query = query.lower()
 
-    results = []
+    # 🔥 POCSO (SPECIAL LAW)
+    if "pocso" in query or "child abuse" in query:
+        return (
+            "POCSO Act (Protection of Children from Sexual Offences Act, 2012):\n"
+            "- Deals with sexual offences against children\n"
+            "- Provides strict punishments and child protection"
+        )
 
-    for law in LAW_DATA:
-        if (
-            law["title"].lower() in query
-            or any(word in law["description"].lower() for word in query.split())
-        ):
-            results.append(
-                f"Section {law['section']}: {law['title']}"
-            )
+    # 🔥 ACCIDENT / RASH DRIVING
+    if any(word in query for word in ["accident", "rash driving", "hit", "negligence"]):
+        return (
+            "Relevant sections:\n"
+            "- Section 279 IPC: Rash driving\n"
+            "- Section 304A IPC: Causing death by negligence\n"
+            "- Motor Vehicles Act provisions also apply"
+        )
 
-    if results:
-        return "Relevant laws:\n" + "\n".join(results[:3])
+    # 🔥 TRESPASS / LAND
+    if any(word in query for word in ["land", "property", "trespass"]):
+        return (
+            "Relevant sections:\n"
+            "- Section 441 IPC: Criminal trespass\n"
+            "- Section 447 IPC: Punishment for trespass"
+        )
 
-    return "No matching law found."
+    # 🔥 THEFT
+    if any(word in query for word in ["theft", "steal"]):
+        return "Section 379 IPC: Punishment for theft."
+
+    # 🔥 MURDER
+    if "murder" in query:
+        return "Section 302 IPC: Punishment for murder."
+
+    # 🔥 CHEATING
+    if any(word in query for word in ["cheating", "fraud"]):
+        return "Section 420 IPC: Cheating."
+
+    # 🔥 RAPE
+    if "rape" in query:
+        return "Section 376 IPC: Punishment for rape."
+
+    return "No exact legal match found. Please refine your query."
 
 
 # 🔹 FIR
