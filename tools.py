@@ -1,49 +1,49 @@
 import json
 
-with open("laws.json", "r") as f:
-    LAW_DATA = json.load(f)
+with open("laws.json", "r", encoding="utf-8") as f:
+    LAWS = json.load(f)
 
 
 def lookup_section(section_id):
-    for law in LAW_DATA:
+    for law in LAWS:
         if law["section"] == str(section_id):
-            return f"Section {law['section']} IPC: {law['title']} - {law['description']}"
-    return "Section not found."
+            return f"Section {law['section']}: {law['title']} - {law['description']}"
+    return f"Section {section_id} not found."
 
 
+# 🔥 SMART SEARCH (better than keyword)
 def search_law(query):
     query = query.lower()
+    scored_results = []
 
-    # 🔥 SPECIAL LAWS
-    if "pocso" in query:
-        return "POCSO Act 2012: Protection of children from sexual offences."
+    for law in LAWS:
+        score = 0
 
-    if "accident" in query or "rash driving" in query:
-        return "Section 279 IPC: Rash driving, Section 304A IPC: Negligence."
+        if query in law["title"].lower():
+            score += 3
+        if query in law["description"].lower():
+            score += 2
+        if any(word in law["title"].lower() for word in query.split()):
+            score += 1
 
-    if "land" in query or "property" in query:
-        return "Section 441 IPC: Trespass, Section 447 IPC: Punishment."
+        if score > 0:
+            scored_results.append((score, law))
 
-    # 🔥 DATASET SEARCH
-    results = []
-    for law in LAW_DATA:
-        if law["title"].lower() in query:
-            results.append(f"Section {law['section']} IPC: {law['title']}")
+    # sort by best match
+    scored_results.sort(reverse=True, key=lambda x: x[0])
 
-    if results:
-        return "\n".join(results[:3])
+    if scored_results:
+        top = scored_results[0][1]
+        return f"Best match:\nSection {top['section']}: {top['title']} - {top['description']}"
 
-    return "No exact match found."
+    return "No relevant section found."
 
 
 def fir_procedure():
-    return (
-        "Steps to file FIR:\n"
-        "1. Go to police station\n"
-        "2. Explain incident\n"
-        "3. Police records FIR\n"
-        "4. Take FIR copy"
-    )
+    return """Steps to file FIR:
+1. Go to police station
+2. Provide details
+3. Get FIR copy"""
 
 
 TOOLS = {
