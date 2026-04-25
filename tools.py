@@ -17,7 +17,10 @@ def lookup_section(section_id):
 def search_law(query):
     query = query.lower()
 
-    # 🔥 POCSO (SPECIAL LAW)
+    # =====================================
+    # 🔥 1. SPECIAL LAW HANDLING
+    # =====================================
+
     if "pocso" in query or "child abuse" in query:
         return (
             "POCSO Act (Protection of Children from Sexual Offences Act, 2012):\n"
@@ -25,7 +28,6 @@ def search_law(query):
             "- Provides strict punishments and child protection"
         )
 
-    # 🔥 ACCIDENT / RASH DRIVING
     if any(word in query for word in ["accident", "rash driving", "hit", "negligence"]):
         return (
             "Relevant sections:\n"
@@ -34,32 +36,41 @@ def search_law(query):
             "- Motor Vehicles Act provisions also apply"
         )
 
-    # 🔥 TRESPASS / LAND
-    if any(word in query for word in ["land", "property", "trespass"]):
+    if any(word in query for word in ["land", "property", "trespass", "encroachment"]):
         return (
             "Relevant sections:\n"
             "- Section 441 IPC: Criminal trespass\n"
             "- Section 447 IPC: Punishment for trespass"
         )
 
-    # 🔥 THEFT
-    if any(word in query for word in ["theft", "steal"]):
-        return "Section 379 IPC: Punishment for theft."
+    # =====================================
+    # 🔥 2. DATASET SEARCH (IMPORTANT FIX)
+    # =====================================
 
-    # 🔥 MURDER
-    if "murder" in query:
-        return "Section 302 IPC: Punishment for murder."
+    results = []
 
-    # 🔥 CHEATING
-    if any(word in query for word in ["cheating", "fraud"]):
-        return "Section 420 IPC: Cheating."
+    for law in LAW_DATA:
+        title = law["title"].lower()
+        desc = law["description"].lower()
 
-    # 🔥 RAPE
-    if "rape" in query:
-        return "Section 376 IPC: Punishment for rape."
+        # match any keyword from query
+        if any(word in title or word in desc for word in query.split()):
+            results.append(
+                f"Section {law['section']} IPC: {law['title']}"
+            )
 
-    return "No exact legal match found. Please refine your query."
+    # =====================================
+    # 🔥 3. RETURN BEST MATCHES
+    # =====================================
 
+    if results:
+        return "Relevant laws:\n" + "\n".join(results[:3])
+
+    # =====================================
+    # 🔥 4. SAFE FALLBACK
+    # =====================================
+
+    return "No exact legal match found. Please try a more specific query."
 
 # 🔹 FIR
 def fir_procedure():
