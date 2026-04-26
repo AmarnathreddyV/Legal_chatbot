@@ -36,7 +36,7 @@ def run_agent(user_input):
     text = user_input.lower().strip()
 
     # =====================================
-    # 🔥 1. BASIC CONVERSATION
+    #. BASIC CONVERSATION
     # =====================================
     if text in ["hi", "hello", "hey"]:
         return "Hello! 👋 I am your Legal AI Assistant. Ask me about laws, sections, or FIR."
@@ -45,7 +45,7 @@ def run_agent(user_input):
         return "I'm doing great! 😊 How can I help you with legal information?"
 
     # =====================================
-    # 🔥 2. SECTION DETECTION (HIGH PRIORITY)
+    #  2. SECTION DETECTION (HIGH PRIORITY)
     # =====================================
     match = re.search(r"\b\d{3}\b", text)
     if match:
@@ -54,21 +54,21 @@ def run_agent(user_input):
         return f"{result}\n\nThis section explains the legal provision under IPC."
 
     # =====================================
-    # 🔥 3. FIR DETECTION (IMPORTANT FIX)
+    # 3. FIR DETECTION (IMPORTANT FIX)
     # =====================================
     if any(word in text for word in ["fir", "file fir", "register fir", "complaint"]):
         result = fir_procedure()
         return f"{result}\n\nThis is the process to file an FIR."
 
     # =====================================
-    # 🔥 4. DIRECT LAW SEARCH (SMART FALLBACK BEFORE LLM)
+    #  4. DIRECT LAW SEARCH (SMART FALLBACK BEFORE LLM)
     # =====================================
     result = search_law(text)
     if "Section" in result:
         return f"{result}\n\nThis law is relevant to your query."
 
     # =====================================
-    # 🔥 5. MCP (LLM DECISION)
+    #  5. MCP (LLM DECISION)
     # =====================================
     decision_prompt = f"""
 You are a legal assistant.
@@ -124,7 +124,7 @@ Avoid repetition.
         print("[Parsing Error]:", e)
 
         # =====================================
-        # 🔥 6. FINAL FALLBACK (NEVER FAIL)
+        #  6. FINAL FALLBACK (NEVER FAIL)
         # =====================================
         return f"""
 I understand your question: "{user_input}"
@@ -134,5 +134,5 @@ Here’s what you can try:
 • Ask about a crime (e.g., theft, cheating)
 • Ask about FIR process
 
-I'm here to help with legal information 😊
+I'm here to help with legal information 
 """
