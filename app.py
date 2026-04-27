@@ -3,7 +3,7 @@ from agent import run_agent
 
 st.set_page_config(page_title="Legal AI Chatbot", layout="centered")
 
-st.title("⚖️ Legal AI Chatbot")
+st.title(" Legal AI Chatbot")
 st.write("Ask about legal sections or FIR procedures")
 
 # Initialize chat history
