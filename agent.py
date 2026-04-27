@@ -39,10 +39,10 @@ def run_agent(user_input):
     #. BASIC CONVERSATION
     # =====================================
     if text in ["hi", "hello", "hey"]:
-        return "Hello! 👋 I am your Legal AI Assistant. Ask me about laws, sections, or FIR."
+        return "Hello! I am your Legal AI Assistant. Ask me about laws, sections, or FIR."
 
     if "how are you" in text:
-        return "I'm doing great! 😊 How can I help you with legal information?"
+        return "I'm doing great!  How can I help you with legal information?"
 
     # =====================================
     #  2. SECTION DETECTION (HIGH PRIORITY)
